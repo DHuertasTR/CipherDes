@@ -2,10 +2,7 @@ package model;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.ArrayList;
@@ -61,6 +58,20 @@ public class EncriptadorAES {
         }
         inputStream.close();
         outputStream.close();
+    }
+
+    public byte[] createSha1(File file) throws Exception  {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        InputStream fis = new FileInputStream(file);
+        int n = 0;
+        byte[] buffer = new byte[8192];
+        while (n != -1) {
+            n = fis.read(buffer);
+            if (n > 0) {
+                digest.update(buffer, 0, n);
+            }
+        }
+        return digest.digest();
     }
 
     public static void zzip(ArrayList<String> filesSrc,String fileName) throws IOException {
@@ -129,16 +140,16 @@ public class EncriptadorAES {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException, IOException {
 
         //funciones de zip y unzip-------------------funciones de zip y unzip-------------------funciones de zip y unzip-------------------
-		/*
+
+        /*
 		ArrayList<String> paths= new ArrayList<>();
 		paths.add("src/test/resources/brayan.txt");
 		paths.add("src/test/resources/david.txt");
 
 		zzip(paths,"data");
+        */
 
-		*/
-
-        unzzip("D:/proyects/git/data.encr");
+        //unzzip("data.encr");
 
 
 
