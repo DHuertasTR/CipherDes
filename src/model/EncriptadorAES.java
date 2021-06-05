@@ -1,14 +1,12 @@
 package model;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.zip.*;
 import java.util.zip.ZipOutputStream;
 import javax.crypto.BadPaddingException;
@@ -29,6 +27,42 @@ public class EncriptadorAES {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 128);
         SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
         return secret;
+    }
+
+    public static int generateSalt(){
+        Random random=new Random();
+        int num =random.nextInt(90000) + 10000;
+        return num;
+    }
+
+    public static String readFile(String path) throws IOException {
+        String cadena;
+        String result="";
+        FileReader f = new FileReader(path);
+        BufferedReader b = new BufferedReader(f);
+        while((cadena = b.readLine())!=null) {
+            System.out.println(cadena);
+            result+=cadena;
+        }
+        b.close();
+        return result;
+    }
+
+    public static void createFile(String name, String topic){
+        try {
+            String ruta = "src/test/resources/"+name;
+            File file = new File(ruta);
+            // Si el archivo no existe es creado
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(topic);
+            bw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static IvParameterSpec generateIv() {
@@ -114,10 +148,16 @@ public class EncriptadorAES {
         zis.close();
     }
 
+
+
+
+
+
     public static void decryptFile(String algorithm, SecretKey key, IvParameterSpec iv, File encryptedFile,
                                    File decryptedFile) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance(algorithm);
+
         cipher.init(Cipher.DECRYPT_MODE, key, iv);
         FileInputStream inputStream = new FileInputStream(encryptedFile);
         FileOutputStream outputStream = new FileOutputStream(decryptedFile);
@@ -139,6 +179,15 @@ public class EncriptadorAES {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException, IOException {
 
+
+
+
+        //funciones de escritura y hash sha1-----------funciones de escritura y hash sha1-----------funciones de escritura y hash sha1-----------
+
+        /*
+        createFile("archivoTest.txt",generateSalt()+"");
+        */
+
         //funciones de zip y unzip-------------------funciones de zip y unzip-------------------funciones de zip y unzip-------------------
 
         /*
@@ -153,10 +202,9 @@ public class EncriptadorAES {
 
 
 
+        //funciones de encriptado y menu--------------------funciones de encriptado y menu--------------------funciones de encriptado y menu--------------------
 
 
-        //funciones de encriptado--------------------funciones de encriptado--------------------funciones de encriptado--------------------
-		/*
 		String algorithm = "AES/CBC/PKCS5Padding";
 		String password="";
 		int valueToChose=0;
@@ -175,12 +223,17 @@ public class EncriptadorAES {
 
 		if(valueToChose==1){
 			IvParameterSpec ivParameterSpec = EncriptadorAES.generateIv();
+            String encoded = Base64.getEncoder().encodeToString(ivParameterSpec.getIV());
+            System.out.println(encoded);
+			createFile("iv.txt",encoded);
 			System.out.println("ingrese la contrasena");
 			password=scan.next();
 			System.out.println("ingrese la ruta del archivo");
 			String path=scan.next();
-			SecretKey key = EncriptadorAES.getKeyFromPassword(password,"12345");
-			File inputFile = Paths.get("src/test/resources/david.txt").toFile();
+			int saltnew=generateSalt();
+			createFile("salt.txt",saltnew+"");
+			SecretKey key = EncriptadorAES.getKeyFromPassword(password,saltnew+"");
+			File inputFile = Paths.get(path).toFile();
 			File encryptedFile = new File(inputFile.getName()+".encrypted");
 			EncriptadorAES.encryptFile(algorithm, key, ivParameterSpec, inputFile, encryptedFile);
 		}else if(valueToChose==2){
@@ -188,15 +241,20 @@ public class EncriptadorAES {
 			password=scan.next();
 			System.out.println("ingrese la ruta del archivo");
 			String path=scan.next();
-			SecretKey key = EncriptadorAES.getKeyFromPassword(password,"12345");
-			File encryptedFile = Paths.get("src/test/resources/david.encrypted").toFile();
+            String salt=readFile("src/test/resources/salt.txt");
+            byte[] decoded = Base64.getDecoder().decode(readFile("src/test/resources/iv.txt"));
+            //byte[] data=readFile("src/test/resources/iv.txt").getBytes(StandardCharsets.UTF_8);
+            System.out.println(decoded);
+            IvParameterSpec ivspec= new IvParameterSpec(decoded);
+			SecretKey key = EncriptadorAES.getKeyFromPassword(password,salt);
+			File encryptedFile = Paths.get(path).toFile();
 			File decryptedFile = new File("document.decrypted");
-			//EncriptadorAES.decryptFile(algorithm, key, ivParameterSpec, encryptedFile, decryptedFile);
+			EncriptadorAES.decryptFile(algorithm, key, ivspec, encryptedFile, decryptedFile);
 		}else{
 			System.out.println("ingrese un valor valido");
 		}
 
-		 */
+
 
 		/*
 
