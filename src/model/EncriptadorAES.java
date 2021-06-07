@@ -22,6 +22,14 @@ import javax.swing.*;
 
 public class EncriptadorAES {
 
+    /**
+     * Este metodo se encarga de generar un objeto de tipo SecretKey a partir de la contraseña y la sal
+     * @param password contraseña para encriptar el archivo
+     * @param salt sal aleatoria para el proceso de encriptado
+     * @return Objeto de tipo SecretKey 
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
     public static SecretKey getKeyFromPassword(String password, String salt)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
@@ -30,12 +38,22 @@ public class EncriptadorAES {
         return secret;
     }
 
+    /**
+     * Este método se encarga de generar la sal aleatoria al realizar el proceso de encriptado
+     * @return sal aleatoria de tipo Integer
+     */
     public static int generateSalt(){
         Random random=new Random();
         int num =random.nextInt(90000) + 10000;
         return num;
     }
 
+    /**
+     * Este método se encarga de leer el contenido de un archivo
+     * @param path Ruta del archivo
+     * @return Contenido del archivo 
+     * @throws IOException
+     */
     public static String readFile(String path) throws IOException {
         String cadena;
         String result="";
@@ -49,6 +67,11 @@ public class EncriptadorAES {
         return result;
     }
 
+    /**
+     * 
+     * @param name
+     * @param topic
+     */
     public static void createFile(String name, String topic){
         try {
             String ruta = "src/test/resources/"+name;
@@ -66,12 +89,31 @@ public class EncriptadorAES {
         }
     }
 
+    /**
+     * 
+     * @return
+     */
     public static IvParameterSpec generateIv() {
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
         return new IvParameterSpec(iv);
     }
 
+    /**
+     * Este método encripta un archivo seleccionado 
+     * @param algorithm algoritmo de encriptación a definir
+     * @param key Objeto de tipo SecretKey generado a partir de una contraseña y sal aleatoria
+     * @param iv 
+     * @param inputFile Archivo a encriptar
+     * @param outputFile Archivo final encriptado 
+     * @throws IOException
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
     public static void encryptFile(String algorithm, SecretKey key, IvParameterSpec iv, File inputFile, File outputFile)
             throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
@@ -95,6 +137,12 @@ public class EncriptadorAES {
         outputStream.close();
     }
 
+    /**
+     * Este método genera la función hash SHA-1 en un archivo
+     * @param file Archivo
+     * @return
+     * @throws Exception
+     */
     public static byte[] createSha1(File file) throws Exception  {
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
         InputStream fis = new FileInputStream(file);
@@ -109,6 +157,12 @@ public class EncriptadorAES {
         return digest.digest();
     }
 
+    /**
+     * Este método comprime los archivos correspondientes al iv y la sal
+     * @param filesSrc Arreglo de tipo String con las rutas de los archivos a comprimir
+     * @param fileName Nombre del archivo resultante del proceso de compresión 
+     * @throws IOException
+     */
     public static void zzip(ArrayList<String> filesSrc,String fileName) throws IOException {
         FileOutputStream fos = new FileOutputStream(fileName+".encr");
         ZipOutputStream zipOut = new ZipOutputStream(fos);
@@ -129,6 +183,13 @@ public class EncriptadorAES {
         fos.close();
     }
 
+
+    /**
+     * Este método descomprime el archivo comprimido con el método zzip
+     * @param SrcFileZip
+     * @return
+     * @throws IOException
+     */
     public static String unzzip(String SrcFileZip) throws IOException {
         String encripted="";
         final byte[] buffer = new byte[1024];
@@ -154,7 +215,13 @@ public class EncriptadorAES {
         return encripted;
     }
 
-
+    /**
+     * Este método compara el valor SHA-1 entre dos archivos
+     * @param sha11 ruta del archivo con la funcion 
+     * @param sha12
+     * @return
+     * @throws IOException
+     */
     public static Boolean comparateSHA1(String sha11,String sha12) throws IOException {
 
         String realSha11=readFile(sha11);
@@ -165,7 +232,21 @@ public class EncriptadorAES {
     }
 
 
-
+    /**
+     * Este método desencripta un archivo seleccionado 
+     * @param algorithm algoritmo de encriptación a definir
+     * @param key Objeto de tipo SecretKey generado a partir de una contraseña y sal aleatoria
+     * @param iv
+     * @param encryptedFile archivo a encriptar 
+     * @param decryptedFile
+     * @throws IOException
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
     public static void decryptFile(String algorithm, SecretKey key, IvParameterSpec iv, File encryptedFile,
                                    File decryptedFile) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
