@@ -18,6 +18,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.*;
 
 public class EncriptadorAES {
 
@@ -94,7 +95,7 @@ public class EncriptadorAES {
         outputStream.close();
     }
 
-    public byte[] createSha1(File file) throws Exception  {
+    public static byte[] createSha1(File file) throws Exception  {
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
         InputStream fis = new FileInputStream(file);
         int n = 0;
@@ -126,13 +127,17 @@ public class EncriptadorAES {
         }
         zipOut.close();
         fos.close();
-
     }
-    public static void unzzip(String SrcFileZip) throws IOException {
+
+    public static String unzzip(String SrcFileZip) throws IOException {
+        String encripted="";
         final byte[] buffer = new byte[1024];
         final ZipInputStream zis = new ZipInputStream(new FileInputStream(SrcFileZip));
         ZipEntry zipEntry = zis.getNextEntry();
         while (zipEntry != null) {
+            if (zipEntry.getName().endsWith(".encrypted")){
+                encripted=zipEntry.getName();
+            }
             final File newFile = new File(zipEntry.getName());
             final FileOutputStream fos = new FileOutputStream(newFile);
             int len;
@@ -146,10 +151,18 @@ public class EncriptadorAES {
         }
         zis.closeEntry();
         zis.close();
+        return encripted;
     }
 
 
+    public static Boolean comparateSHA1(String sha11,String sha12) throws IOException {
 
+        String realSha11=readFile(sha11);
+        String realSha12=readFile(sha12);
+
+        return realSha11.equals(realSha12);
+
+    }
 
 
 
@@ -177,7 +190,7 @@ public class EncriptadorAES {
         outputStream.close();
     }
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException, IOException {
+    public static void main(String[] args) throws Exception {
 
 
 
@@ -209,6 +222,7 @@ public class EncriptadorAES {
 		String password="";
 		int valueToChose=0;
 
+
 		Scanner scan= new Scanner(System.in);
 		System.out.println("Bienvenido");
 		System.out.println("");
@@ -234,22 +248,67 @@ public class EncriptadorAES {
 			createFile("salt.txt",saltnew+"");
 			SecretKey key = EncriptadorAES.getKeyFromPassword(password,saltnew+"");
 			File inputFile = Paths.get(path).toFile();
-			File encryptedFile = new File(inputFile.getName()+".encrypted");
+            createFile("realName.txt",inputFile.getName());
+			String sha164=Base64.getEncoder().encodeToString(createSha1(inputFile));
+			createFile("sha.txt",sha164);
+			File encryptedFile = new File("file.encrypted");
 			EncriptadorAES.encryptFile(algorithm, key, ivParameterSpec, inputFile, encryptedFile);
+			ArrayList<String> rutas= new ArrayList<>();
+			rutas.add("src/test/resources/iv.txt");
+			rutas.add("src/test/resources/salt.txt");
+			rutas.add("src/test/resources/sha.txt");
+			rutas.add("file.encrypted");
+			rutas.add("src/test/resources/realName.txt");
+			zzip(rutas,"file");
+			File iv=new File("src/test/resources/iv.txt");
+            File salt=new File("src/test/resources/salt.txt");
+            File sha=new File("src/test/resources/sha.txt");
+            File enc=new File("file.encrypted");
+            File name=new File("src/test/resources/realName.txt");
+            iv.delete();
+            salt.delete();
+            sha.delete();
+            enc.delete();
+            name.delete();
+
 		}else if(valueToChose==2){
 			System.out.println("ingrese la contrasena");
 			password=scan.next();
 			System.out.println("ingrese la ruta del archivo");
 			String path=scan.next();
-            String salt=readFile("src/test/resources/salt.txt");
-            byte[] decoded = Base64.getDecoder().decode(readFile("src/test/resources/iv.txt"));
+			String encripNAme=unzzip(path);
+            String salt=readFile("salt.txt");
+            byte[] decoded = Base64.getDecoder().decode(readFile("iv.txt"));
             //byte[] data=readFile("src/test/resources/iv.txt").getBytes(StandardCharsets.UTF_8);
             System.out.println(decoded);
             IvParameterSpec ivspec= new IvParameterSpec(decoded);
 			SecretKey key = EncriptadorAES.getKeyFromPassword(password,salt);
-			File encryptedFile = Paths.get(path).toFile();
-			File decryptedFile = new File("document.decrypted");
+			File encryptedFile = Paths.get(encripNAme).toFile();
+			String nameReal=readFile("realName.txt");
+			File decryptedFile = new File(nameReal);
 			EncriptadorAES.decryptFile(algorithm, key, ivspec, encryptedFile, decryptedFile);
+            String sha164=Base64.getEncoder().encodeToString(createSha1(decryptedFile));
+            createFile("shaFinal.txt",sha164);
+            if (comparateSHA1("sha.txt","src/test/resources/shaFinal.txt")){
+                System.out.println("archivo correcto");
+
+            }else{
+                System.out.println("error al desencriptar el archivo");
+            }
+
+            File iv=new File("iv.txt");
+            File salte=new File("salt.txt");
+            File sha=new File("sha.txt");
+            File enc=new File("file.encrypted");
+            File sha2=new File("src/test/resources/shaFinal.txt");
+            File name=new File("src/test/resources/realName.txt");
+
+            iv.delete();
+            salte.delete();
+            sha.delete();
+            enc.delete();
+            sha2.delete();
+            name.delete();
 		}else{
 			System.out.println("ingrese un valor valido");
 		}
