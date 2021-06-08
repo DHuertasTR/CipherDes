@@ -68,9 +68,9 @@ public class EncriptadorAES {
     }
 
     /**
-     * 
-     * @param name
-     * @param topic
+     * Este método se encarga de crear un nuevo archivo
+     * @param name Nombre del nuevo arhivo
+     * @param topic Contenido del archivo a crear
      */
     public static void createFile(String name, String topic){
         try {
@@ -90,8 +90,9 @@ public class EncriptadorAES {
     }
 
     /**
-     * 
-     * @return
+     * Este método se encarga de generar un objeto de tipo IvParameterSpec, que se refiere a vector de inicialización de 16 bits
+     * necesario para el proceso de encriptación
+     * @return Vector de inicialización aleatorio de 16 bits 
      */
     public static IvParameterSpec generateIv() {
         byte[] iv = new byte[16];
@@ -103,7 +104,7 @@ public class EncriptadorAES {
      * Este método encripta un archivo seleccionado 
      * @param algorithm algoritmo de encriptación a definir
      * @param key Objeto de tipo SecretKey generado a partir de una contraseña y sal aleatoria
-     * @param iv 
+     * @param iv vector de inicialización aleatorio 
      * @param inputFile Archivo a encriptar
      * @param outputFile Archivo final encriptado 
      * @throws IOException
@@ -139,8 +140,8 @@ public class EncriptadorAES {
 
     /**
      * Este método genera la función hash SHA-1 en un archivo
-     * @param file Archivo
-     * @return
+     * @param file Archivo al cual se le firmará el SHA-1
+     * @return Archivo resultante en formato byte
      * @throws Exception
      */
     public static byte[] createSha1(File file) throws Exception  {
@@ -217,9 +218,9 @@ public class EncriptadorAES {
 
     /**
      * Este método compara el valor SHA-1 entre dos archivos
-     * @param sha11 ruta del archivo con la funcion 
-     * @param sha12
-     * @return
+     * @param sha11 ruta del archivo con la función hash
+     * @param sha12 ruta del archivo el cual tiene firmado la función hash
+     * @return Dato de tipo booleano en donde es verdarero si hay igualdad, y falso en caso contrario
      * @throws IOException
      */
     public static Boolean comparateSHA1(String sha11,String sha12) throws IOException {
@@ -236,9 +237,9 @@ public class EncriptadorAES {
      * Este método desencripta un archivo seleccionado 
      * @param algorithm algoritmo de encriptación a definir
      * @param key Objeto de tipo SecretKey generado a partir de una contraseña y sal aleatoria
-     * @param iv
-     * @param encryptedFile archivo a encriptar 
-     * @param decryptedFile
+     * @param iv vector de inicialización aleatorio 
+     * @param encryptedFile Archivo a encriptar 
+     * @param decryptedFile Nuevo Archivo con la ruta en el cual se guardará
      * @throws IOException
      * @throws NoSuchPaddingException
      * @throws NoSuchAlgorithmException
