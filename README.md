@@ -19,4 +19,4 @@ comparar el hash del archivo descifrado con el almacenado en el archivo cifrado.
 
 ## Conclusiones:
 
-- Con el proceso llevado a cabo en este proyecto, basado en los fundamentos introducidos en el curso, pudimos descubrir muchas funcionalidades interesantes  es importante destacar la importancia de la implementación de soluciones a nivel de seguridad informática. Es 
+- Con el proceso llevado a cabo en este proyecto, basado en los fundamentos introducidos en el curso, pudimos descubrir muchas funcionalidades interesantes a nivel de código en el lenguaje java. Es importante destacar la importancia de la implementación de soluciones a nivel de seguridad informática y las facilidades que nos ofrecen los diferentes lenguajes de programación en este aspecto.
